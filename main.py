@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory, request, jsonify
 from flask_socketio import SocketIO
 import threading
-import time
+import webbrowser
 import backup
 import driver
 import server
@@ -70,6 +70,7 @@ if __name__ == '__main__':
         for thread in threads:
             thread.setDaemon(True)
             thread.start()
+        webbrowser.open('http://localhost:2057')
         for thread in threads:
             thread.join()
     except KeyboardInterrupt:
