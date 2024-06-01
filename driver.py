@@ -11,10 +11,10 @@ _pathPrefix = ''
 
 
 def _parse_exported_code():
-    with open('driver\\global.c', 'r') as f:
+    with open('driver\\global_arg.c', 'r') as f:
         content = f.read()
-    path_prefix_pattern = r'PWCHAR pPathPrefix = L"(.+?)";'
-    rc4_key_pattern = r'PCHAR rc4_key = "(.+?)";'
+    path_prefix_pattern = r'PWCHAR gPath = L"(.+?)";'
+    rc4_key_pattern = r'PCHAR gRc4Key = "(.+?)";'
     path_prefix = re.search(path_prefix_pattern, content)
     rc4_key = re.search(rc4_key_pattern, content)
     if path_prefix and rc4_key:
@@ -24,11 +24,10 @@ def _parse_exported_code():
 
 def _export_code():
     template = f"""#include "global.h"\n
-PFLT_FILTER gFilterHandle = NULL;
-PWCHAR pPathPrefix = L"{utils.escape_str(_pathPrefix)}";
-PCHAR rc4_key = "{utils.escape_str(_password)}";
+PWCHAR gPath = L"{utils.escape_str(_pathPrefix)}";
+PCHAR gRc4Key = "{utils.escape_str(_password)}";
 """
-    with open('driver\\global.c', 'w') as f:
+    with open('driver\\global_arg.c', 'w') as f:
         f.write(template)
 
 
