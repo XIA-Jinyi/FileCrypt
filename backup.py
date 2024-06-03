@@ -60,6 +60,13 @@ def _handle_file(file_basename: str):
         _upload(path, data)
 
 
+def list(path):
+    payload = json.dumps({'path': path})
+    url = utils.build_url(backup_server, '/list')
+    response = requests.put(url, data=payload, headers={'Content-Type': 'application/json'})
+    return response.json()
+
+
 def main_loop():
     while True:
         file_list = os.listdir('C:\\FsFilterDemotemp')

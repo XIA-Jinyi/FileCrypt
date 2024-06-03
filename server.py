@@ -3,7 +3,7 @@ import pathlib
 import base64
 
 
-app = Flask('FileCrypt')
+app = Flask('FileCrypt', static_url_path='/get', static_folder='backup')
 
 
 @app.route('/upload', methods=['PUT'])
@@ -27,21 +27,32 @@ def test():
     return jsonify(True), 200
 
 
-@app.route('/download', methods=['PUT'])
-def restore():
+@app.route('/list', methods=['PUT'])
+def list():
     try:
         path = request.json['path']
-        file_path = pathlib.Path('backup') / pathlib.Path(path)
-        with file_path.open('rb') as f:
-            data = f.read()
-        data = base64.b64encode(data).decode()
-        return jsonify({'data': data}), 200
+        dir = pathlib.Path('backup') / pathlib.Path(path)
+        folder_result = []
+        file_result = []
+        for item in dir.iterdir():
+            if item.is_file():
+                file_result.append({
+                    'name': item.name,
+                    'isFile': True,
+                })
+            elif item.is_dir():
+                folder_result.append({
+                    'name': item.name,
+                    'isFile': False,
+                })
+        return jsonify(folder_result + file_result), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 404
+        print(str(e))
+        return jsonify({'error': str(e)}), 400
 
 
 def main():
-    app.run('0.0.0.0', port=3000)
+    app.run('localhost', port=3000)
 
 
 if __name__ == '__main__':

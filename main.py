@@ -51,6 +51,15 @@ def handle_unload():
         return jsonify({'error': str(e)}), 400
 
 
+@app.route('/api/list', methods=['PUT'])
+def handle_list():
+    try:
+        result = backup.list(request.json['path'])
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
 def emit_log(content: str):
     socketio.emit('log', content)
 
@@ -65,7 +74,7 @@ if __name__ == '__main__':
     backup_thread = threading.Thread(target=backup.main_loop)
     server_thread = threading.Thread(target=server.main)
     backend_thread = threading.Thread(target=main)
-    threads = [backup_thread, server_thread, backend_thread]
+    threads = [server_thread, backend_thread, backup_thread]
     try:
         for thread in threads:
             thread.setDaemon(True)
