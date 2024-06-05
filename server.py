@@ -11,7 +11,7 @@ def backup():
     try:
         path = request.json['path']
         data = request.json['data']
-        file_path = pathlib.Path('backup') / pathlib.Path(path)
+        file_path = pathlib.Path('C:\\backup') / pathlib.Path(path)
         file_path.parent.mkdir(parents=True, exist_ok=True)
         data = base64.b64decode(data)
         with file_path.open('wb') as f:
@@ -31,7 +31,7 @@ def test():
 def list():
     try:
         path = request.json['path']
-        dir = pathlib.Path('backup') / pathlib.Path(path)
+        dir = pathlib.Path('C:\\backup') / pathlib.Path(path)
         folder_result = []
         file_result = []
         for item in dir.iterdir():
@@ -52,6 +52,7 @@ def list():
 
 
 def main():
+    pathlib.Path('C:\\backup').mkdir(parents=True, exist_ok=True)
     app.run('localhost', port=3000)
 
 

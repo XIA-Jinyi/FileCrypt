@@ -1,3 +1,19 @@
+import os
+import sys
+
+
+def source_path(relative_path):
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
+cd = source_path('')
+os.chdir(cd)
+
+
 from flask import Flask, send_from_directory, request, jsonify
 from flask_socketio import SocketIO
 import threading
@@ -5,6 +21,8 @@ import webbrowser
 import backup
 import driver
 import server
+import pystray
+from PIL import Image
 
 
 app = Flask('FileCrypt', static_url_path='/', static_folder='frontend/dist')
@@ -68,20 +86,43 @@ def main():
     socketio.run(app, host='localhost', port=2057)
 
 
+backup_thread = threading.Thread(target=backup.main_loop)
+server_thread = threading.Thread(target=server.main)
+backend_thread = threading.Thread(target=main)
+threads = [server_thread, backend_thread, backup_thread]
+
+
+stop_event = threading.Event()
+
+
+def setup_tray():
+    image = Image.open('frontend/dist/favicon.png')
+    icon = pystray.Icon("Driver", image, "文件加密驱动")
+    
+    def quit_action():
+        stop_event.set()
+        icon.stop()
+    
+    icon.menu = pystray.Menu(
+        pystray.MenuItem("Open", lambda: webbrowser.open('http://localhost:2057')),
+        pystray.MenuItem("Quit", quit_action)
+    )
+    
+    icon.run()
+
+
+tray_thread = threading.Thread(target=setup_tray)
+
 if __name__ == '__main__':
     driver.set_logger(emit_log)
     backup.set_logger(emit_log)
-    backup_thread = threading.Thread(target=backup.main_loop)
-    server_thread = threading.Thread(target=server.main)
-    backend_thread = threading.Thread(target=main)
-    threads = [server_thread, backend_thread, backup_thread]
     try:
         for thread in threads:
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
+        tray_thread.start()
         webbrowser.open('http://localhost:2057')
-        for thread in threads:
-            thread.join()
+        stop_event.wait()
     except KeyboardInterrupt:
         print("Received interrupt signal, exiting...")
-        exit(0)
+        stop_event.set()
