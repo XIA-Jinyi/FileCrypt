@@ -17,6 +17,7 @@ def update_server(addr: str):
     if test_server(addr):
         backup_server = addr
     else:
+        
         raise Exception("Server error!")
 
 
