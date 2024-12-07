@@ -13,6 +13,7 @@ _pathPrefix = ''
 def _parse_exported_code():
     with open('driver\\global_arg.c', 'r') as f:
         content = f.read()
+        
     path_prefix_pattern = r'PWCHAR gPath = L"(.+?)";'
     rc4_key_pattern = r'PCHAR gRc4Key = "(.+?)";'
     path_prefix = re.search(path_prefix_pattern, content)
