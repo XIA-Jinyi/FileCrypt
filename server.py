@@ -17,6 +17,7 @@ def backup():
         with file_path.open('wb') as f:
             f.write(data)
         return jsonify(None), 200
+        
     except Exception as e:
         print(str(e))
         return jsonify({'error': str(e)}), 400
