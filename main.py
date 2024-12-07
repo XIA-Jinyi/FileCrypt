@@ -115,6 +115,7 @@ def setup_tray():
 
 tray_thread = threading.Thread(target=setup_tray)
 
+
 if __name__ == '__main__':
     driver.set_logger(emit_log)
     backup.set_logger(emit_log)
