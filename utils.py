@@ -12,6 +12,7 @@ def normalize_url(url: str) -> str:
 def build_url(base: str, path: str) -> str:
     base_url = normalize_url(base)
     full_url = urljoin(base_url, path)
+    
     return full_url
 
 
